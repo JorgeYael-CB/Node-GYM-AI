@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtAdapter } from "../../../config";
+import { UsersRepository } from '../../../domain/repositories/user.repository';
 
 
 
@@ -7,6 +8,7 @@ export class AuthMiddlweware {
 
   constructor(
     private readonly jwtAdapter: JwtAdapter,
+    private readonly usersRepository: UsersRepository,
   ){}
 
 

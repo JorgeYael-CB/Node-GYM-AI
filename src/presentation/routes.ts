@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { UsersRoutes } from './auth/routes';
 
 export class Routes {
 
@@ -6,6 +7,7 @@ export class Routes {
     const routes = Router();
 
     //* Manejamos las rutas iniciales
+    routes.use('/api/auth', UsersRoutes.router);
 
     return routes;
   }
