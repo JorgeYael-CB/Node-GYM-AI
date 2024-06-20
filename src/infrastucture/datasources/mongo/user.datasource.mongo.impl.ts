@@ -1,4 +1,4 @@
-import { BcryptAdapter } from "../../../config/bcrypt";
+import { BcryptAdapter } from "../../../config";
 import { UsersDatasource } from "../../../domain/datasources";
 import { LoginUserDto, RegisterUserDto, GetUserDto, ResetPasswordDto } from "../../../domain/dtos";
 import { UserEntity } from "../../../domain/entities";
