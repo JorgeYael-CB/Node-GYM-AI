@@ -1,12 +1,17 @@
 export class UserEntity {
 
   constructor(
-    private readonly id: number | string,
-    private readonly name: string,
-    private readonly email: string,
-    private readonly password: string,
-    private readonly isVerify: boolean,
-    private readonly isActive: boolean,
+    readonly id: number | string,
+    readonly name: string,
+    readonly email: string,
+    readonly password: string,
+    readonly isVerify: boolean,
+    readonly isActive: boolean,
+    readonly roles: string[],
+    readonly date: Date,
+    readonly totalAmountPaid: number,
+    readonly messages: any,
+    readonly coments: any,
   ){}
 
 };
