@@ -1,13 +1,13 @@
 import { JwtAdapter } from "../../../config";
-import { UsersRepositoryImpl } from "../../../infrastucture/repositories";
 import { LoginUserDto } from "../../dtos";
 import { CustomError } from "../../errors";
+import { UsersRepository } from "../../repositories";
 
 
 
 interface Props {
   loginUserDto: LoginUserDto;
-  usersRepository: UsersRepositoryImpl;
+  usersRepository: UsersRepository;
   jwtAdapter: JwtAdapter;
 }
 

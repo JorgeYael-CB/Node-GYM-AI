@@ -10,18 +10,16 @@ export class CustomError extends Error {
   };
 
 
-  static BadRequestException( error: string, data: any ) {
-    console.log({ error, data })
+  static BadRequestException( error: string ) {
     return new CustomError(400, error);
   }
 
-  static InternalServerError( error: string, data: any ){
+  static InternalServerError( error: string, data?: any ){
     console.log({ error, data })
     return new CustomError(500, 'Error - Contact Support!');
   }
 
-  static Unauthorized( error: string, data: any ){
-    console.log({ error, data });
+  static Unauthorized( error: string ){
     return new CustomError( 401, error );
   }
 
