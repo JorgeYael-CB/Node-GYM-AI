@@ -32,5 +32,6 @@ export const loginUserUseCase = async( { loginUserDto, usersRepository, jwtAdapt
       roles: user.roles,
       totalAmountPaid: user.totalAmountPaid,
     },
+    status: 200,
   }
 };

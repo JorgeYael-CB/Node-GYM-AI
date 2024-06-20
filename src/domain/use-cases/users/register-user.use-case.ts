@@ -1,0 +1,34 @@
+import { JwtAdapter } from "../../../config";
+import { RegisterUserDto } from "../../dtos";
+import { CustomError } from "../../errors";
+import { UsersRepository } from '../../repositories';
+
+
+export const registerUserUseCase = async(
+  usersRepository:UsersRepository,
+  registerUserDto: RegisterUserDto,
+  jwtAdapter: JwtAdapter,
+) => {
+  const user = await usersRepository.registerUser( registerUserDto );
+  if( !user ) throw CustomError.InternalServerError(`El usuario no existe al registrarlo!`, {file: __dirname});
+
+  const token = await jwtAdapter.generateToken({id: user.id}, '2h');
+
+  return {
+    message: `Account created successfully!`,
+    token,
+    user: {
+      name: user.name,
+      email: user.email,
+      id: user.id,
+      isVerify: user.isVerify,
+      isActive: user.isActive,
+      messages: user.messages,
+      coments: user.coments,
+      date: user.date,
+      roles: user.roles,
+      totalAmountPaid: user.totalAmountPaid,
+    },
+    status: 200,
+  }
+};

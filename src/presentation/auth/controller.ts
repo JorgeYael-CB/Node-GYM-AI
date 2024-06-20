@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { LoginUserDto } from "../../domain/dtos";
-import { loginUserUseCase } from "../../domain/use-cases/users";
+import { LoginUserDto, RegisterUserDto } from "../../domain/dtos";
+import { loginUserUseCase, registerUserUseCase } from "../../domain/use-cases/users";
 import { JwtAdapter } from "../../config";
 import { UsersRepository } from '../../domain/repositories';
 import { CustomError } from "../../domain/errors";
@@ -34,7 +34,12 @@ export class UsersController {
 
 
   registerUser = ( req:Request, res:Response ) => {
-    res.json('send');
+    const [error, registerUserDto] = RegisterUserDto.create(req.body);
+    if( error ) return res.status(400).json({error, status: 400});
+
+    registerUserUseCase(this.usersRepository, registerUserDto!, this.jwtAdapter)
+      .then( data => res.status(200).json(data) )
+      .catch( err => this.handleError(err, res) );
   }
 
 }

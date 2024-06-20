@@ -8,6 +8,10 @@ import { CustomError } from "../../../domain/errors";
 import { UserMapper } from "../../mappers";
 
 
+
+type roles = 'ADMIN' | 'DEVELOPER' | 'USER' | 'USER_PREMIUM' | 'USER_VIP';
+
+
 export class UsersDatasourceMongoImpl implements UsersDatasource {
 
   constructor(
@@ -30,9 +34,10 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
   }
 
 
-  private userAcces( user: any ){
-    if( !user.isVerify ) throw CustomError.Unauthorized(`You have to verify your account to log in.`);
+  private userAcces( user: any, role?: roles, validateVerify?: boolean ){
     if( !user.isActive ) throw CustomError.Unauthorized(`The user's account is blocked, please contact support.`);
+    if( validateVerify && !user.isVerify ) throw CustomError.Unauthorized(`Verify your account!`);
+    if( role && !user.roles.includes(role) ) throw CustomError.Unauthorized(`You do not have access to this content`);
   }
 
 
@@ -49,9 +54,22 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
   }
 
 
-  registerUser(registerUserDto: RegisterUserDto): Promise<UserEntity> {
-    throw new Error("Method not implemented.");
+  async registerUser(registerUserDto: RegisterUserDto): Promise<UserEntity> {
+    const { email, name, password } = registerUserDto;
+    const user = await userModel.findOne({email});
+
+    if( user ) throw CustomError.Unauthorized(`This user already has an account created!`);
+
+    const newUser = await userModel.create({
+      date: new Date(),
+      email,
+      password: this.bcryptAdapter.hash(password),
+      name,
+    });
+
+    return UserMapper.getUserFromObj(newUser);
   }
+
 
   verifyUserAccount(getUserDto: GetUserDto): Promise<UserEntity> {
     throw new Error("Method not implemented.");
