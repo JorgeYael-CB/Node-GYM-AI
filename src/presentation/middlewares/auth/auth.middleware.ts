@@ -14,7 +14,7 @@ export class AuthMiddlweware {
 
 
   private handleError = ( res: Response, message:string = 'Contact support' ) => {
-    return res.status(401).json({error: true, message: message, status: 401});
+    return res.status(401).json({error: message, status: 401});
   };
 
   validateJwt = async(req:Request, res:Response, next: NextFunction) => {
