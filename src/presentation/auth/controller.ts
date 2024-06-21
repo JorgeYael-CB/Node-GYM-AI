@@ -42,4 +42,9 @@ export class UsersController {
       .catch( err => this.handleError(err, res) );
   }
 
+
+  validateJwt = (req:Request, res:Response) => {
+    res.status(200).json({status: 200, message: 'token valid!'});
+  };
+
 }

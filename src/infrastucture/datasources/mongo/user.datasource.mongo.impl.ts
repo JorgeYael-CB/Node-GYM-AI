@@ -19,7 +19,7 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
   ){}
 
 
-  private async getUserBy( email?:string, id?:string ){
+  private async getUserBy( email?:string, id?:any ){
     if( id && !isValidObjectId(id) ){
       throw CustomError.BadRequestException(`Id "${id}" is not valid`);
     }
@@ -79,8 +79,10 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
     throw new Error("Method not implemented.");
   }
 
-  getUser(getUserDto: GetUserDto): Promise<UserEntity> {
-    throw new Error("Method not implemented.");
+  async getUser(getUserDto: GetUserDto): Promise<UserEntity> {
+    const user = await this.getUserBy(getUserDto.email, getUserDto.id);
+
+    return UserMapper.getUserFromObj(user);
   }
 
   getAllUsers(): Promise<UserEntity[]> {
