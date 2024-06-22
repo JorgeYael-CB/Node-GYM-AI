@@ -10,5 +10,4 @@ export * from './coments/add-coment.dto';
 export * from './coments/get-all-coments.dto';
 export * from './coments/get-coment.dto';
 
-export * from './messages/get-answer-gpt.dto';
 export * from './messages/send-message.dto';

@@ -2,15 +2,16 @@ import { Router } from "express";
 import { UsersController } from "./controller";
 import { UsersRepositoryImpl } from "../../infrastucture/repositories";
 import { UsersDatasourceMongoImpl } from "../../infrastucture/datasources";
-import { BcryptAdapter, JwtAdapter, envs } from "../../config";
+import { BcryptAdapter, CompareDateAdapter, JwtAdapter, envs } from "../../config";
 import { AuthMiddlweware } from "../middlewares/auth/auth.middleware";
 
 
 
 const bcryptAdapter = new BcryptAdapter();
 const jwtAdapter = new JwtAdapter(envs.JWT_SEED);
+const compareDateAdapter = new CompareDateAdapter();
 
-const usersDatasourceMongo = new UsersDatasourceMongoImpl(bcryptAdapter);
+const usersDatasourceMongo = new UsersDatasourceMongoImpl(bcryptAdapter, compareDateAdapter);
 export const usersRepositoryImpl = new UsersRepositoryImpl(usersDatasourceMongo);
 
 export const authMiddleware = new AuthMiddlweware(jwtAdapter, usersRepositoryImpl);

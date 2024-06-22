@@ -15,7 +15,12 @@ const MessageSchema = new Schema({
   answer: {
     type: String,
   },
+
+  content: {
+    type: String,
+    required: true,
+  }
 });
 
 
-export const essageModel = mongoose.model('Message', MessageSchema);
+export const MessageModel = mongoose.model('Message', MessageSchema);

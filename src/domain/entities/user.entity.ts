@@ -12,6 +12,8 @@ export class UserEntity {
     readonly totalAmountPaid: number,
     readonly messages: any,
     readonly coments: any,
+    readonly limitMessage: number,
+    readonly lastDateMessages: Date[],
   ){}
 
 };

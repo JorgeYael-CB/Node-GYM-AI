@@ -10,6 +10,11 @@ export class UsersRepositoryImpl implements UsersRepository {
     private readonly usersDatasource: UsersDatasource,
   ){}
 
+
+  checkMessageDate(userId: any): Promise<UserEntity> {
+    return this.usersDatasource.checkMessageDate(userId);
+  }
+
   loginUser(LoginUserDto: LoginUserDto): Promise<UserEntity> {
     return this.usersDatasource.loginUser(LoginUserDto);
   }

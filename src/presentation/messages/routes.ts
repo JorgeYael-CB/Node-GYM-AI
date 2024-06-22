@@ -1,23 +1,27 @@
 import { Router } from "express";
-import { authMiddleware } from "../auth/routes";
+import { authMiddleware, usersRepositoryImpl } from "../auth/routes";
 import { MessageController } from "./controller";
 import { GptServiceAdpater, ShortMessageAdapter } from "../../config";
+import { MessageDatasourceMongoImpl } from "../../infrastucture/datasources";
+import { MessageRepositoryImpl } from "../../infrastucture/repositories";
 
 
 
 const shortMessageAdapter = new ShortMessageAdapter();
 const gptServiceAdapter = new GptServiceAdpater();
 
+const messageDatasourceImpl = new MessageDatasourceMongoImpl();
+const messageRepositoryImpl = new MessageRepositoryImpl( messageDatasourceImpl );
+
 
 export class MessageRoutes {
 
   static get Routes():Router {
     const routes = Router();
-    const controller = new MessageController(shortMessageAdapter, gptServiceAdapter);
+    const controller = new MessageController(shortMessageAdapter, gptServiceAdapter, messageRepositoryImpl, usersRepositoryImpl);
 
 
     routes.post('/send-message', authMiddleware.validateJwt, controller.sendMessage);
-    routes.post('/get-answer-gpt', authMiddleware.validateJwt, controller.getAnswerGpt);
 
 
     return routes;

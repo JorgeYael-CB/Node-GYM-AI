@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import { GetAnswerGptDto, SendMessageDto } from "../../domain/dtos";
-import { GetAnswerGptUseCase, SendMessageUseCase } from "../../domain/use-cases/messages";
+import { SendMessageDto } from "../../domain/dtos";
+import { SendMessageUseCase } from "../../domain/use-cases/messages";
 import { CustomError } from "../../domain/errors";
 import { GptServiceAdpater, ShortMessageAdapter } from "../../config";
+import { MessageRepository, UsersRepository } from "../../domain/repositories";
 
 
 export class MessageController {
@@ -10,6 +11,8 @@ export class MessageController {
   constructor(
     private readonly shortMessageAdapter: ShortMessageAdapter,
     private readonly gptServiceAdapter: GptServiceAdpater,
+    private readonly messageRepository: MessageRepository,
+    private readonly usersRepository:UsersRepository
   ){}
 
 
@@ -27,20 +30,10 @@ export class MessageController {
     const [error, sendMessageDto] = SendMessageDto.create(req.body);
     if( error ) return res.status(400).json({error, status: 400});
 
-    SendMessageUseCase(sendMessageDto!)
-      .then( data => res.status(200).json(data) )
-      .catch( err => this.handleError(err, res) );
-  };
-
-
-  getAnswerGpt = ( req:Request, res:Response ) => {
-    const [error, getAnswerGptDto] = GetAnswerGptDto.create(req.body);
-    if( error ) return res.status(400).json({error, status: 400});
-
-    new GetAnswerGptUseCase(this.shortMessageAdapter, this.gptServiceAdapter)
-      .answer(getAnswerGptDto!)
+    new SendMessageUseCase(this.messageRepository, this.shortMessageAdapter, this.gptServiceAdapter, this.usersRepository)
+      .send(sendMessageDto!)
         .then( data => res.status(200).json(data) )
         .catch( err => this.handleError(err, res) );
-  }
+  };
 
 }

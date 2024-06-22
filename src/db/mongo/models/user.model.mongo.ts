@@ -50,6 +50,16 @@ const UserSchema = new Schema({
     }]
   },
 
+  limitMessage: {
+    type: Number,
+    default: 5,
+  },
+
+  lastDateMessages: {
+    type: [Date],
+    default: [],
+  },
+
   coments: {
     type: [{
       ref: 'Coment',

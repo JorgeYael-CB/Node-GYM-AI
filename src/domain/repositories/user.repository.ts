@@ -11,4 +11,5 @@ export abstract class UsersRepository {
   abstract resetPassword(resetPassword: ResetPasswordDto):Promise< UserEntity >;
   abstract getUser(getUserDto: GetUserDto):Promise< UserEntity >;
   abstract getAllUsers(): Promise< UserEntity[] >;
+  abstract checkMessageDate(userId:any):Promise<UserEntity>;
 };

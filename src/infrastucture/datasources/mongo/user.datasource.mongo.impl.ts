@@ -1,21 +1,20 @@
-import { isValidObjectId } from "mongoose";
-import { BcryptAdapter } from "../../../config";
+import { Types, isValidObjectId } from "mongoose";
+import { BcryptAdapter, CompareDateAdapter } from "../../../config";
 import { userModel } from "../../../db/mongo";
 import { UsersDatasource } from "../../../domain/datasources";
 import { LoginUserDto, RegisterUserDto, GetUserDto, ResetPasswordDto } from "../../../domain/dtos";
 import { UserEntity } from "../../../domain/entities";
 import { CustomError } from "../../../domain/errors";
 import { UserMapper } from "../../mappers";
+import { roles } from "../../../domain/types";
 
-
-
-type roles = 'ADMIN' | 'DEVELOPER' | 'USER' | 'USER_PREMIUM' | 'USER_VIP';
 
 
 export class UsersDatasourceMongoImpl implements UsersDatasource {
 
   constructor(
     private readonly bcryptAdapter: BcryptAdapter,
+    private readonly compareDateAdapter: CompareDateAdapter,
   ){}
 
 
@@ -38,6 +37,28 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
     if( !user.isActive ) throw CustomError.Unauthorized(`The user's account is blocked, please contact support.`);
     if( validateVerify && !user.isVerify ) throw CustomError.Unauthorized(`Verify your account!`);
     if( role && !user.roles.includes(role) ) throw CustomError.Unauthorized(`You do not have access to this content`);
+  }
+
+
+  async checkMessageDate( userId: any ): Promise<UserEntity> {
+    const user = await this.getUserBy(undefined, userId);
+    this.userAcces(user, 'USER_VIP');
+
+    //TODO: hacemos las validaciones de los mensajes
+    if( user.lastDateMessages.length >= user.limitMessage ){
+      let validMessages = user.lastDateMessages.filter(msg => typeof this.compareDateAdapter.oneDay(msg) === 'string');
+
+      if( validMessages.length >= user.lastDateMessages.length ){
+        const lastDateString = this.compareDateAdapter.oneDay( validMessages[0] );
+        throw CustomError.Unauthorized(`You currently have no messages available, please try again at: ${lastDateString}`);
+      };
+
+      user.lastDateMessages = new Types.DocumentArray(validMessages);
+
+      await user.save();
+    }
+
+    return UserMapper.getUserFromObj(user);
   }
 
 
