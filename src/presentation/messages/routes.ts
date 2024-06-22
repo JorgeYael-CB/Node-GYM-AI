@@ -22,6 +22,7 @@ export class MessageRoutes {
 
 
     routes.post('/send-message', authMiddleware.validateJwt, controller.sendMessage);
+    routes.get('/get-messages', authMiddleware.validateJwt, controller.getMessages);
 
 
     return routes;

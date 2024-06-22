@@ -6,6 +6,6 @@ import { MessageEntity } from '../entities';
 export abstract class MessageDatasource {
 
   abstract sendMessage(sendMessageDto: SendMessageDto, answer?:string):Promise< MessageEntity >;
-  abstract getMessages(paginationDto: PaginationDto):Promise< MessageEntity[] >;
+  abstract getMessages(paginationDto: PaginationDto, userId: any):Promise< MessageEntity[] >;
 
 }

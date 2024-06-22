@@ -17,8 +17,8 @@ export class MessageRepositoryImpl implements MessageRepository {
   }
 
 
-  getMessages(paginationDto: PaginationDto): Promise<MessageEntity[]> {
-    return this.MessageDatasource.getMessages(paginationDto);
+  getMessages(paginationDto: PaginationDto, userId: any): Promise<MessageEntity[]> {
+    return this.MessageDatasource.getMessages(paginationDto, userId);
   }
 
 }

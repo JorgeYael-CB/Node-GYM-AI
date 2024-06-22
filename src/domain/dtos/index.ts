@@ -11,3 +11,4 @@ export * from './coments/get-all-coments.dto';
 export * from './coments/get-coment.dto';
 
 export * from './messages/send-message.dto';
+export * from './helpers/pagination.dto';

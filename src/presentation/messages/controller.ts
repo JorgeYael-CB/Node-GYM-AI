@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { SendMessageDto } from "../../domain/dtos";
+import { PaginationDto, SendMessageDto } from "../../domain/dtos";
 import { SendMessageUseCase } from "../../domain/use-cases/messages";
 import { CustomError } from "../../domain/errors";
 import { GptServiceAdpater, ShortMessageAdapter } from "../../config";
@@ -36,4 +36,15 @@ export class MessageController {
         .catch( err => this.handleError(err, res) );
   };
 
+
+  getMessages = ( req:Request, res:Response ) => {
+    const [error, paginationDto] = PaginationDto.create( req.query );
+    if( error ) return res.status(400).json({error, status: 400});
+
+    const { userId } = req.body;
+
+    this.messageRepository.getMessages(paginationDto!, userId)
+      .then( data => res.status(200).json({messages: data, status: 200}) )
+      .catch( err => this.handleError(err, res) );
+  };
 }

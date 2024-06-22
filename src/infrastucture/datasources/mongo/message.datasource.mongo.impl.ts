@@ -2,8 +2,7 @@ import { isValidObjectId } from "mongoose";
 import { userModel } from "../../../db/mongo";
 import { MessageModel } from "../../../db/mongo/models/messages.model.mongo";
 import { MessageDatasource } from "../../../domain/datasources";
-import { SendMessageDto } from "../../../domain/dtos";
-import { PaginationDto } from "../../../domain/dtos/helpers/pagination.dto";
+import { SendMessageDto, PaginationDto } from "../../../domain/dtos";
 import { MessageEntity } from "../../../domain/entities";
 import { MessageMapper } from "../../mappers";
 import { CustomError } from "../../../domain/errors";
@@ -20,11 +19,16 @@ export class MessageDatasourceMongoImpl implements MessageDatasource {
     }
   }
 
-  async sendMessage(sendMessageDto: SendMessageDto, answer?: string): Promise<MessageEntity> {
-    this.validateId(sendMessageDto.userId);
-
-    const user = await userModel.findById(sendMessageDto.userId);
+  private async getUserById( id: any ){
+    this.validateId(id);
+    const user = await userModel.findById(id);
     if( !user ) throw CustomError.BadRequestException(`User not found`);
+
+    return user;
+  }
+
+  async sendMessage(sendMessageDto: SendMessageDto, answer?: string): Promise<MessageEntity> {
+    const user = await this.getUserById(sendMessageDto.userId);
 
     const newMessage = await MessageModel.create({
       sender: sendMessageDto.userId,
@@ -42,8 +46,13 @@ export class MessageDatasourceMongoImpl implements MessageDatasource {
   }
 
 
-  async getMessages(paginationDto: PaginationDto): Promise<MessageEntity[]> {
-    throw new Error("Method not implemented.");
+  async getMessages(paginationDto: PaginationDto, userId: any): Promise<MessageEntity[]> {
+    const { limit = 10, page = 0 } = paginationDto;
+    const messages = await MessageModel.find({ sender: userId })
+      .limit(limit)
+      .skip(page * limit);
+
+    return messages.map( msg => MessageMapper.getMessageFromObj(msg));
   }
 
 }
