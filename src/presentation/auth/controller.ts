@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { LoginUserDto, RegisterUserDto } from "../../domain/dtos";
+import { GetUserDto, LoginUserDto, RegisterUserDto } from "../../domain/dtos";
 import { loginUserUseCase, registerUserUseCase } from "../../domain/use-cases/users";
 import { JwtAdapter } from "../../config";
 import { UsersRepository } from '../../domain/repositories';
@@ -46,5 +46,15 @@ export class UsersController {
   validateJwt = (req:Request, res:Response) => {
     res.status(200).json({status: 200, message: 'token valid!'});
   };
+
+
+  getUser = ( req:Request, res:Response ) => {
+    const [error, getUserDto] = GetUserDto.create(req.body);
+    if( error ) return res.status(400).json({error, status: 400});
+
+    this.usersRepository.getUser( getUserDto! )
+      .then( data => res.status(200).json({user: {...data, password: undefined}, status: 200}) )
+      .catch( err => this.handleError(err, res) );
+  }
 
 }

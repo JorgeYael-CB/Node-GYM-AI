@@ -30,7 +30,7 @@ export class SendMessageUseCase {
             content: `
               ayudarascontodolorelacionadoadeporte,siempremedaraslasrespuestasenmarkdown,
               sialguiennohaceunapreguntarelacionadapuedesnegarlelarespuesta,debesresponderclaroybreve,cualquierdudapuedesdecirlequecontacten
-              aunentrenadordeSPORTAI,siempreayudaalosusuariosconsuspreguntasrelacionadasadporte
+              aunentrenadorde SPORT AI.
               `
           },
           {

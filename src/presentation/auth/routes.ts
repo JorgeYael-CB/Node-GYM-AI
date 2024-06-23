@@ -26,6 +26,7 @@ export class UsersRoutes {
     routes.post('/login-user', controller.loginUser);
     routes.post('/register-user', controller.registerUser);
     routes.post('/validate-token', [authMiddleware.validateJwt], controller.validateJwt);
+    routes.get('/get-user', [authMiddleware.validateJwt], controller.getUser);
 
     return routes;
   }

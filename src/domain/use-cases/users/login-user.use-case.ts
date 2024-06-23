@@ -20,18 +20,7 @@ export const loginUserUseCase = async( { loginUserDto, usersRepository, jwtAdapt
 
   return {
     token,
-    user: {
-      name: user.name,
-      email: user.email,
-      id: user.id,
-      isVerify: user.isVerify,
-      isActive: user.isActive,
-      messages: user.messages,
-      coments: user.coments,
-      date: user.date,
-      roles: user.roles,
-      totalAmountPaid: user.totalAmountPaid,
-    },
+    user: {...user, password: undefined},
     status: 200,
   }
 };
