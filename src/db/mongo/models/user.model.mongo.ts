@@ -67,6 +67,13 @@ const UserSchema = new Schema({
     }]
   },
 
+  data: {
+    type: [{
+      ref: 'UserData',
+      type: Schema.Types.ObjectId,
+    }]
+  },
+
 });
 
 
