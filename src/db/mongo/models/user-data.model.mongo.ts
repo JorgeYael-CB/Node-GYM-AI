@@ -50,11 +50,11 @@ const UserDataSchema = new Schema({
     type: String,
   },
 
-  availableDays: {
+  availableDaysForWeek: {
     type: String,
   },
 
-  availableTime: {
+  availableTimeForDay: {
     type: String,
   },
 
