@@ -8,7 +8,7 @@ import { MessageRepositoryImpl } from "../../infrastucture/repositories";
 
 
 const shortMessageAdapter = new ShortMessageAdapter();
-const gptServiceAdapter = new GptServiceAdpater();
+export const gptServiceAdapter = new GptServiceAdpater();
 
 const messageDatasourceImpl = new MessageDatasourceMongoImpl();
 const messageRepositoryImpl = new MessageRepositoryImpl( messageDatasourceImpl );
