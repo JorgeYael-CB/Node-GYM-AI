@@ -10,6 +10,7 @@ interface Props {
   medicalHistory: string,
   equipment: string,
   sexo: string,
+  experience: string,
   injuries?: string,
   foodRestrictions?:string,
   availableTimeForDay?: string,
@@ -25,7 +26,7 @@ export class GetTrainingRoutineDto {
 
 
   static create( body: {[string:string]:any} ):[string?, GetTrainingRoutineDto?]{
-    const data = [ 'userId', 'year', 'height', 'weight', 'aim', 'deport', 'medicalHistory', 'equipment', 'sexo'];
+    const data = [ 'userId', 'year', 'height', 'weight', 'aim', 'deport', 'medicalHistory', 'equipment', 'sexo', 'experience'];
     let error:string = '';
 
     data.forEach( element => {
@@ -33,6 +34,10 @@ export class GetTrainingRoutineDto {
         return error = `Element ${element} is required`;
       }
     });
+
+    if( body.sexo !== 'H' && body.sexo !== 'M' ){
+      error = 'sexo is not valid!';
+    }
 
     if( error !== '' ){
       return [error];

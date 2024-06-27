@@ -65,6 +65,11 @@ const UserDataSchema = new Schema({
   sexo: {
     type: String,
     required: true,
+  },
+
+  experience: {
+    type: String,
+    required: true,
   }
 });
 

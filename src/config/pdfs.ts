@@ -35,8 +35,8 @@ export class PdfsAdapter {
           content: userContent,
         }
       ],
-      model: 'gpt-3.5-turbo',
-      temperature: 0.2,
+      model: 'gpt-4o',
+      temperature: 0.3,
     });
 
     const data = response.choices[0].message.content;
@@ -54,6 +54,7 @@ export class PdfsAdapter {
     weight,
     year,
     sexo,
+    experience,
     availableDaysForWeek = 'No definido',
     availableTimeForDay = 'No definido',
     foodRestrictions = 'No definido',
@@ -132,13 +133,16 @@ export class PdfsAdapter {
       daysM.forEach(day => {
         routinePromises.push(this.getTrainingDay(`Eres un entrenador profesional el cual debe darle rutinas avanzadas a los usuarios en base a sus datos 
           proporcionados, trabajas para SPORT AI, si es necesario agrega mas columnas o remueve columnas para mejores rutinas, modifica la plantilla como sea necesario.`, `
-          Hola, genera una rutina deportiva, solo usa la plantilla que te dan y no agregues mas texto, solo el HTML con la plantilla que te dan 
-          , esta es una tabla de ejemplo de como debes hacer las tablas, hoy es el dia: ${day.day} y el musculo que le toca es: ${day.muscle},
+          Hola, genera una rutina deportiva, solo usa la plantilla que te dan y no agregues mas texto, solo el HTML con la plantilla que te dan, 
+          esta es una tabla de ejemplo de como debes hacer las tablas, hoy es el dia: ${day.day} y el musculo que le toca es: ${day.muscle},
           este es el ejemplo de como debes hacerla, ira en formato HTML, solo remplaza las tablas con el ejercicio, si es necesario agrega mas o quita mas tabla.
           ${tableDay}
           el usuario mide: ${height}, pesa: ${weight}, tiene ${year} años, su historial medico es: ${medicalHistory}, dias disponibles por semana: ${availableDaysForWeek}, 
           horas disponibles por dia: ${availableTimeForDay}, el deporte que practica es ${deport}, su objetivo es: ${aim}, su equipo para entrenar es: ${equipment}, 
-          sus restricciones de comida son: ${foodRestrictions} y la descripcion de sus lesiones: ${injuries},
+          sus restricciones de comida son: ${foodRestrictions}, la descripcion de sus lesiones: ${injuries} y su experiencia es ${experience}, con base a sus datos 
+          genera una rutina especificamente para el usuario, con su horario, cuidado de lesiones, experiecia, objetivo, equipo para entrenar, edad y su peso, tambien puedes 
+          modificar/agregar metodos, nuevos ejercicios, modificar la descripcion 
+          para un mejor entendimiento de la rutina y mejor enfoque a su objetivo, TODO lo que sea necesario puedes modificar, solo generame una rutina especial para ese usuario.
           `
         ));
       });
@@ -146,6 +150,11 @@ export class PdfsAdapter {
 
     const routineResults = await Promise.all(routinePromises);
     const routineHtml = routineResults.join('');
+    const dieta = await this.getTrainingDay('Eres un nutricionista deportivo que ayuda con recomendaciones alimentarias a los usuarios, no agregues texto de mas, solo da especificamente la recomendacion de comida para antes de entrenar, despues de entrenar y durante el dia.', `
+      Ayudame con mi comida y recomiendaciones, el deporte que practico es: ${deport}, restricciones de comida: ${foodRestrictions}, 
+      mi historial medico es: ${medicalHistory}, peso: ${weight}, mido: ${height}, con esos datos dame unas recomiendaciones de comida especificamente para mi y mi objetivo.
+      `)
+
 
     const openAiData = `
     <body style="margin: 0; padding: 20px; background-color: #fff;">
@@ -169,31 +178,31 @@ export class PdfsAdapter {
         <table style="width: 100%; border-collapse: collapse;">
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Nombre</th>
-                <td style="padding: 12px; border: 1px solid #ddd;">Juan Pérez</td>
+                <td style="padding: 12px; border: 1px solid #ddd;"> [[NAME]] </td>
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Edad</th>
-                <td style="padding: 12px; border: 1px solid #ddd;">30</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${year}</td>
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Altura</th>
-                <td style="padding: 12px; border: 1px solid #ddd;">1.75 m</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${height} cm</td>
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Peso</th>
-                <td style="padding: 12px; border: 1px solid #ddd;">75 kg</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${weight} kg</td>
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Objetivo</th>
-                <td style="padding: 12px; border: 1px solid #ddd;">Perder grasa y ganar músculo</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${aim}</td>
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Historial Médico</th>
-                <td style="padding: 12px; border: 1px solid #ddd;">Sin lesiones previas</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${injuries}</td>
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Restricciones de Comida</th>
-                <td style="padding: 12px; border: 1px solid #ddd;">Sin restricciones</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${foodRestrictions}</td>
             </tr>
         </table>
 
@@ -205,10 +214,15 @@ export class PdfsAdapter {
         <p>${equipment}</p>
         <h2 style="margin-top: 30px;">Descripción de Lesiones</h2>
         <p>${injuries}</p>
+        <h2 style="margin-top: 30px;">Historial Medico</h2>
+        <p>${medicalHistory}</p>
       </div>
       <section>
         ${routineHtml}
       </section>
+
+      <p>Recomendaciones de comida para ti.</p>
+      <p>${dieta}</p>
     </body>
     `;
 
