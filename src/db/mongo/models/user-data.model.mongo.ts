@@ -60,6 +60,11 @@ const UserDataSchema = new Schema({
 
   equipment: {
     type: String,
+  },
+
+  sexo: {
+    type: String,
+    required: true,
   }
 });
 

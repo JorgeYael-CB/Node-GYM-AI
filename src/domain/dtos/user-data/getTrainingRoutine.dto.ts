@@ -9,6 +9,7 @@ interface Props {
   deport: string,
   medicalHistory: string,
   equipment: string,
+  sexo: string,
   injuries?: string,
   foodRestrictions?:string,
   availableTimeForDay?: string,
@@ -24,7 +25,7 @@ export class GetTrainingRoutineDto {
 
 
   static create( body: {[string:string]:any} ):[string?, GetTrainingRoutineDto?]{
-    const data = [ 'userId', 'year', 'height', 'weight', 'aim', 'deport', 'medicalHistory', 'equipment'];
+    const data = [ 'userId', 'year', 'height', 'weight', 'aim', 'deport', 'medicalHistory', 'equipment', 'sexo'];
     let error:string = '';
 
     data.forEach( element => {

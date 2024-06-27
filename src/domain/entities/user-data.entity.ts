@@ -13,6 +13,7 @@ export class UserDataEntity {
     public readonly deport: string,
     public readonly medicalHistory: string,
     public readonly equipment: string,
+    public readonly sexo: string,
     public readonly injuries?: string,
     public readonly foodRestrictions?:string,
     public readonly availableTimeForDay?: string,
