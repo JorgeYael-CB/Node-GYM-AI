@@ -2,7 +2,7 @@ import { Types, isValidObjectId } from "mongoose";
 import { BcryptAdapter, CompareDateAdapter } from "../../../config";
 import { userModel } from "../../../db/mongo";
 import { UsersDatasource } from "../../../domain/datasources";
-import { LoginUserDto, RegisterUserDto, GetUserDto, ResetPasswordDto } from "../../../domain/dtos";
+import { LoginUserDto, RegisterUserDto, GetUserDto, ResetPasswordDto, GetTrainingRoutineDto } from "../../../domain/dtos";
 import { UserEntity } from "../../../domain/entities";
 import { CustomError } from "../../../domain/errors";
 import { UserMapper } from "../../mappers";
@@ -55,6 +55,26 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
 
       user.lastDateMessages = new Types.DocumentArray(validMessages);
 
+      await user.save();
+    }
+
+    return UserMapper.getUserFromObj(user);
+  }
+
+
+  async checkRoutineDate(userId: any): Promise<UserEntity> {
+    const user = await this.getUserBy(undefined, userId);
+    this.userAcces(user, 'USER_VIP');
+
+    if( user.routineDate.length >= user.limitRoutineForDay ){
+      let validMessages = user.routineDate.filter(routine => typeof this.compareDateAdapter.oneDay(routine) === 'string');
+
+      if( validMessages.length >= user.lastDateMessages.length ){
+        const lastDateString = this.compareDateAdapter.oneDay( validMessages[0] );
+        throw CustomError.Unauthorized(`You currently have no messages available, please try again at: ${lastDateString}`);
+      };
+
+      user.routineDate = new Types.DocumentArray(validMessages);
       await user.save();
     }
 

@@ -1,7 +1,5 @@
-import { LoginUserDto, ResetPasswordDto } from "../dtos";
+import { GetTrainingRoutineDto, LoginUserDto, ResetPasswordDto, RegisterUserDto, GetUserDto } from "../dtos";
 import { UserEntity } from "../entities";
-import { RegisterUserDto } from '../dtos/users/register-user.dto';
-import { GetUserDto } from '../dtos/users/get-user.dto';
 
 
 export abstract class UsersRepository {
@@ -12,4 +10,5 @@ export abstract class UsersRepository {
   abstract getUser(getUserDto: GetUserDto):Promise< UserEntity >;
   abstract getAllUsers(): Promise< UserEntity[] >;
   abstract checkMessageDate(userId:any):Promise<UserEntity>;
+  abstract checkRoutineDate( userId:any ):Promise<UserEntity>;
 };

@@ -74,6 +74,16 @@ const UserSchema = new Schema({
     }]
   },
 
+  limitRoutineForDay: {
+    type: Number,
+    default: 1,
+  },
+
+  routineDate: {
+    type: [Date],
+    default: []
+  },
+
 });
 
 
