@@ -35,7 +35,7 @@ export class GetTrainingRoutineDto {
       }
     });
 
-    if( body.sexo !== 'H' && body.sexo !== 'M' ){
+    if( body.sexo !== 'M' && body.sexo !== 'F' ){
       error = 'sexo is not valid!';
     }
 

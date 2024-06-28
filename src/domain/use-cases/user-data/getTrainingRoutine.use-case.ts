@@ -22,8 +22,8 @@ export class GetTrainingRoutineUseCase {
     //TODO: agregamos la fecha de su ultima rutina de entrenamiento
     const newData = await this.UserDataRepository.generateDataUser(getTrainingRoutineDto);
 
-    throw CustomError.BadRequestException(`YA ENTRO EN ESTE COMPONENTE`);
-    // const routine = this.pdfsAdapter.trainingPdf(getTrainingRoutineDto);
+    // throw CustomError.BadRequestException(`YA ENTRO EN ESTE COMPONENTE`);
+    return this.pdfsAdapter.trainingPdf(getTrainingRoutineDto, user.name);
   }
 
 }

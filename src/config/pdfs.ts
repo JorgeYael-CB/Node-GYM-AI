@@ -36,7 +36,6 @@ export class PdfsAdapter {
         }
       ],
       model: 'gpt-4o',
-      temperature: 0.3,
     });
 
     const data = response.choices[0].message.content;
@@ -45,7 +44,7 @@ export class PdfsAdapter {
     return data.replace(/```/g, '').replace('html', '');;
   }
 
-  async trainingPdf({ data, data: {
+  async trainingPdf({data: {
     aim,
     deport,
     equipment,
@@ -59,7 +58,7 @@ export class PdfsAdapter {
     availableTimeForDay = 'No definido',
     foodRestrictions = 'No definido',
     injuries = 'No definido',
-  }}: GetTrainingRoutineDto): Promise<Buffer> {
+  }}: GetTrainingRoutineDto, userName: string): Promise<Buffer> {
 
     const daysM = [
       {
@@ -85,6 +84,33 @@ export class PdfsAdapter {
       {
         day: 'Sabado',
         muscle: 'Pierna (enfoque en el femoral y pantorrilla)',
+      }
+    ];
+
+    const daysF = [
+      {
+        day: 'Lunes',
+        muscle: 'Pierna (femoral y gluteos)',
+      },
+      {
+        day: 'Martes',
+        muscle: 'Pecho, hombro y triceps',
+      },
+      {
+        day: 'Miercoles',
+        muscle: 'Pierna (Cuadriceps, abductores y pantorrilla)',
+      },
+      {
+        day: 'Jueves',
+        muscle: 'Espalda y Biceps'
+      },
+      {
+        day: 'Viernes',
+        muscle: 'Pierna (femoral, gluteo, cuadriceps y pantorrilla)'
+      },
+      {
+        day: 'Sabado',
+        muscle: 'parte superior, empuje y jalon.',
       }
     ];
 
@@ -128,8 +154,11 @@ export class PdfsAdapter {
     `;
 
     let routinePromises: Promise<any>[] = [];
+    const userDescription = `el usuario mide: ${height}, pesa: ${weight}, tiene ${year} años, su historial medico es: ${medicalHistory}, dias disponibles por semana: ${availableDaysForWeek}, 
+          horas disponibles por dia: ${availableTimeForDay}, el deporte que practica es ${deport}, su objetivo es: ${aim}, su equipo para entrenar es: ${equipment}, 
+          sus restricciones de comida son: ${foodRestrictions}, la descripcion de sus lesiones: ${injuries} y su experiencia es ${experience}`;
 
-    if (sexo === 'H') {
+    if (sexo === 'M') {
       daysM.forEach(day => {
         routinePromises.push(this.getTrainingDay(`Eres un entrenador profesional el cual debe darle rutinas avanzadas a los usuarios en base a sus datos 
           proporcionados, trabajas para SPORT AI, si es necesario agrega mas columnas o remueve columnas para mejores rutinas, modifica la plantilla como sea necesario.`, `
@@ -137,13 +166,26 @@ export class PdfsAdapter {
           esta es una tabla de ejemplo de como debes hacer las tablas, hoy es el dia: ${day.day} y el musculo que le toca es: ${day.muscle},
           este es el ejemplo de como debes hacerla, ira en formato HTML, solo remplaza las tablas con el ejercicio, si es necesario agrega mas o quita mas tabla.
           ${tableDay}
-          el usuario mide: ${height}, pesa: ${weight}, tiene ${year} años, su historial medico es: ${medicalHistory}, dias disponibles por semana: ${availableDaysForWeek}, 
-          horas disponibles por dia: ${availableTimeForDay}, el deporte que practica es ${deport}, su objetivo es: ${aim}, su equipo para entrenar es: ${equipment}, 
-          sus restricciones de comida son: ${foodRestrictions}, la descripcion de sus lesiones: ${injuries} y su experiencia es ${experience}, con base a sus datos 
+          ${userDescription}, con base a sus datos 
           genera una rutina especificamente para el usuario, con su horario, cuidado de lesiones, experiecia, objetivo, equipo para entrenar, edad y su peso, tambien puedes 
-          modificar/agregar metodos, nuevos ejercicios, modificar la descripcion 
-          para un mejor entendimiento de la rutina y mejor enfoque a su objetivo, TODO lo que sea necesario puedes modificar, solo generame una rutina especial para ese usuario.
-          `
+          modificar/agregar metodos, nuevos ejercicios, modificar la descripcion, el usuario es de sexo Masculino, 
+          para un mejor entendimiento de la rutina y mejor enfoque a su objetivo, TODO lo que sea necesario puedes modificar, solo generame una rutina especial para ese usuario con sus datos.
+          , puedes agregar metodos nuevos, diferentes series y agregar las repeticiones que requiera la rutina.`
+        ));
+      });
+    }else if( sexo === 'F' ){
+      daysF.forEach(day => {
+        routinePromises.push(this.getTrainingDay(`Eres un entrenador profesional el cual debe darle rutinas avanzadas a los usuarios en base a sus datos 
+          proporcionados, trabajas para SPORT AI, si es necesario agrega mas columnas o remueve columnas para mejores rutinas, modifica la plantilla como sea necesario.`, `
+          Hola, genera una rutina deportiva, solo usa la plantilla que te dan y no agregues mas texto, solo el HTML con la plantilla que te dan, 
+          esta es una tabla de ejemplo de como debes hacer las tablas, hoy es el dia: ${day.day} y el musculo que le toca es: ${day.muscle},
+          este es el ejemplo de como debes hacerla, ira en formato HTML, solo remplaza las tablas con el ejercicio, si es necesario agrega mas o quita mas tabla.
+          ${tableDay}
+          ${userDescription}, con base a sus datos 
+          genera una rutina especificamente para el usuario, con su horario, cuidado de lesiones, experiecia, objetivo, equipo para entrenar, edad y su peso, tambien puedes 
+          modificar/agregar metodos, nuevos ejercicios, modificar la descripcion, el usuario es de sexo Femenino, 
+          para un mejor entendimiento de la rutina y mejor enfoque a su objetivo, TODO lo que sea necesario puedes modificar, solo generame una rutina especial para ese usuario con sus datos.
+          , puedes agregar metodos nuevos, diferentes series y agregar las repeticiones que requiera la rutina.`
         ));
       });
     }
@@ -151,9 +193,17 @@ export class PdfsAdapter {
     const routineResults = await Promise.all(routinePromises);
     const routineHtml = routineResults.join('');
     const dieta = await this.getTrainingDay('Eres un nutricionista deportivo que ayuda con recomendaciones alimentarias a los usuarios, no agregues texto de mas, solo da especificamente la recomendacion de comida para antes de entrenar, despues de entrenar y durante el dia.', `
-      Ayudame con mi comida y recomiendaciones, el deporte que practico es: ${deport}, restricciones de comida: ${foodRestrictions}, 
-      mi historial medico es: ${medicalHistory}, peso: ${weight}, mido: ${height}, con esos datos dame unas recomiendaciones de comida especificamente para mi y mi objetivo.
-      `)
+      Ayudame con mi comida y recomiendaciones, ${userDescription}, con esos datos dame unas recomiendaciones de comida especificamente para mi y mi objetivo. 
+      dame el texto en formato HTML, tu respuesta estara dentro de un parrafo (<p></p>) asi que damelo especialmente para eso
+      `);
+
+    const recomendacion = await this.getTrainingDay(`
+      Eres un entrenador personal que ayuda a los usuarios con sus entrenamientos
+      `, `
+      Ayudame con recomendaciones para mejorar en mis entrenamientos, ${userDescription}, con esos datos, dame recomendaciones 
+      especificamente para mi de como mejorar en el deporte que practico, no digas nada fuera de eso, solo dame lo que te pedi. 
+      dame el texto en formato HTML, tu respuesta estara dentro de un parrafo (<p></p>) asi que damelo especialmente para eso
+      `);
 
 
     const openAiData = `
@@ -178,7 +228,7 @@ export class PdfsAdapter {
         <table style="width: 100%; border-collapse: collapse;">
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Nombre</th>
-                <td style="padding: 12px; border: 1px solid #ddd;"> [[NAME]] </td>
+                <td style="padding: 12px; border: 1px solid #ddd;"> ${userName} </td>
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Edad</th>
@@ -198,7 +248,7 @@ export class PdfsAdapter {
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Historial Médico</th>
-                <td style="padding: 12px; border: 1px solid #ddd;">${injuries}</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${medicalHistory}</td>
             </tr>
             <tr>
                 <th style="padding: 12px; border: 1px solid #ddd; background-color: #f2f2f2;">Restricciones de Comida</th>
@@ -223,6 +273,9 @@ export class PdfsAdapter {
 
       <p>Recomendaciones de comida para ti.</p>
       <p>${dieta}</p>
+
+      <p>Recomendaciones para mejorar en los entrenamientos</p>
+      <P>${recomendacion}</P>
     </body>
     `;
 
