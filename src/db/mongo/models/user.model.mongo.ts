@@ -71,7 +71,8 @@ const UserSchema = new Schema({
     type: [{
       ref: 'UserData',
       type: Schema.Types.ObjectId,
-    }]
+    }],
+    default: []
   },
 
   limitRoutineForDay: {

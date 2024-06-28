@@ -1,13 +1,16 @@
 import { PdfsAdapter } from "../../../config";
 import { GetTrainingRoutineDto } from '../../dtos/user-data/getTrainingRoutine.dto';
 import { CustomError } from "../../errors";
-import { UsersRepository } from '../../repositories';
+import { UsersRepository, UserDataRepository } from '../../repositories';
+
+
 
 export class GetTrainingRoutineUseCase {
 
   constructor(
     private readonly pdfsAdapter: PdfsAdapter,
     private readonly usersRepository:UsersRepository,
+    private readonly UserDataRepository:UserDataRepository
   ){};
 
 
@@ -17,8 +20,10 @@ export class GetTrainingRoutineUseCase {
     if( !user ) throw CustomError.InternalServerError(`El usuario no viene al validar la feha de su ultimo mensaje`);
 
     //TODO: agregamos la fecha de su ultima rutina de entrenamiento
+    const newData = await this.UserDataRepository.generateDataUser(getTrainingRoutineDto);
 
-    const routine = this.pdfsAdapter.trainingPdf(getTrainingRoutineDto);
+    throw CustomError.BadRequestException(`YA ENTRO EN ESTE COMPONENTE`);
+    // const routine = this.pdfsAdapter.trainingPdf(getTrainingRoutineDto);
   }
 
 }

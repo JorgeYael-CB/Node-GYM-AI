@@ -10,6 +10,11 @@ export class UserDataRepositoryImpl implements UserDataRepository {
     private readonly userDataDatasource: UserDataDatasource
   ){}
 
+
+  generateDataUser(data: GetTrainingRoutineDto): Promise<UserDataEntity> {
+    return this.userDataDatasource.generateDataUser(data);
+  }
+
   getTrainingRoutine(data: GetTrainingRoutineDto): Promise<UserDataEntity> {
     return this.userDataDatasource.getTrainingRoutine(data);
   }

@@ -12,5 +12,4 @@ export abstract class UsersDatasource {
   abstract getAllUsers(): Promise< UserEntity[] >;
   abstract checkMessageDate(userId: any):Promise<UserEntity>;
   abstract checkRoutineDate( userId:any ):Promise<UserEntity>;
-  
 };

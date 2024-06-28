@@ -69,9 +69,9 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
     if( user.routineDate.length >= user.limitRoutineForDay ){
       let validMessages = user.routineDate.filter(routine => typeof this.compareDateAdapter.oneDay(routine) === 'string');
 
-      if( validMessages.length >= user.lastDateMessages.length ){
+      if( validMessages.length >= user.routineDate.length ){
         const lastDateString = this.compareDateAdapter.oneDay( validMessages[0] );
-        throw CustomError.Unauthorized(`You currently have no messages available, please try again at: ${lastDateString}`);
+        throw CustomError.Unauthorized(`You currently have no routine available, please try again at: ${lastDateString}`);
       };
 
       user.routineDate = new Types.DocumentArray(validMessages);
