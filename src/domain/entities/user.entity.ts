@@ -14,6 +14,9 @@ export class UserEntity {
     readonly coments: any,
     readonly limitMessage: number,
     readonly lastDateMessages: Date[],
+    readonly data: any[],
+    readonly limitRoutineForDay: number,
+    readonly routineDate: Date[],
   ){}
 
 };

@@ -123,7 +123,19 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
   async getUser(getUserDto: GetUserDto): Promise<UserEntity> {
     const user = await this.getUserBy(getUserDto.email, getUserDto.id);
 
-    return UserMapper.getUserFromObj(user);
+    return UserMapper.getUserFromObj(await user.populate('data', {
+      _id: 1,
+      lastDate: 1,
+      year: 1,
+      height: 1,
+      weight: 1,
+      aim: 1,
+      deport: 1,
+      medicalHistory: 1,
+      equipment:1,
+      sexo: 1,
+      experience: 1,
+    }));
   }
 
   getAllUsers(): Promise<UserEntity[]> {
