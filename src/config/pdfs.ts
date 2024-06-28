@@ -35,7 +35,8 @@ export class PdfsAdapter {
           content: userContent,
         }
       ],
-      model: 'gpt-4o',
+      // model: 'gpt-4o',
+      model: 'gpt-3.5-turbo',
     });
 
     const data = response.choices[0].message.content;

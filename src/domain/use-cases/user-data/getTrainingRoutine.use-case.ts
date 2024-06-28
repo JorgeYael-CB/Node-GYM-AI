@@ -1,7 +1,8 @@
-import { PdfsAdapter } from "../../../config";
+import { MailerAdapter, PdfsAdapter } from "../../../config";
 import { GetTrainingRoutineDto } from '../../dtos/user-data/getTrainingRoutine.dto';
 import { CustomError } from "../../errors";
 import { UsersRepository, UserDataRepository } from '../../repositories';
+import fs from 'fs';
 
 
 
@@ -10,7 +11,9 @@ export class GetTrainingRoutineUseCase {
   constructor(
     private readonly pdfsAdapter: PdfsAdapter,
     private readonly usersRepository:UsersRepository,
-    private readonly UserDataRepository:UserDataRepository
+    private readonly UserDataRepository:UserDataRepository,
+    private readonly mailerAdapter:MailerAdapter,
+    private readonly emailSupport: string,
   ){};
 
 
@@ -21,9 +24,28 @@ export class GetTrainingRoutineUseCase {
 
     //TODO: agregamos la fecha de su ultima rutina de entrenamiento
     const newData = await this.UserDataRepository.generateDataUser(getTrainingRoutineDto);
+    const pdf = await this.pdfsAdapter.trainingPdf(getTrainingRoutineDto, user.name);
+    const textHtml = fs.readFileSync('src/files/templates/get-routine.html', {encoding: 'utf-8'})
+      .replace('[[NAME]]', user.name)
+      .replace('[[CORREO_SUPPORT]]', this.emailSupport);
 
-    // throw CustomError.BadRequestException(`YA ENTRO EN ESTE COMPONENTE`);
-    return this.pdfsAdapter.trainingPdf(getTrainingRoutineDto, user.name);
+    this.mailerAdapter.send({
+      html: textHtml,
+      subject: `Sport AI`,
+      to: `${user.email}`,
+      files: [{filename: `Sport AI - ${user.name}.pdf`, content: pdf}],
+    });
+
+    this.mailerAdapter.send({
+      html: `El usuario: ${user.name} - ${user.email} ha generado una rutina de entrenamiento.`,
+      subject: `Alguien genero una rutina`,
+      to: `${this.emailSupport}`,
+      files: [{filename: `Sport AI - ${user.name}.pdf`, content: pdf}],
+    });
+
+    //TODO: guardamos su PDF en un servicio
+
+    return pdf;
   }
 
 }

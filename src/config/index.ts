@@ -8,3 +8,4 @@ export * from './short-message';
 export * from './gpt-service';
 export * from './compare-date';
 export * from './pdfs';
+export * from './mailer';

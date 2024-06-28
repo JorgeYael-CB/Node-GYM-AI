@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { GetTrainingRoutineDto } from '../../domain/dtos/user-data/getTrainingRoutine.dto';
 import { GetTrainingRoutineUseCase } from "../../domain/use-cases/user-data";
-import { PdfsAdapter } from "../../config";
+import { MailerAdapter, PdfsAdapter } from "../../config";
 import { CustomError } from "../../domain/errors";
 import { UsersRepository, UserDataRepository } from "../../domain/repositories";
 
@@ -12,7 +12,9 @@ export class UserDataController {
   constructor(
     private readonly pdfsAdapter: PdfsAdapter,
     private readonly usersRepository: UsersRepository,
-    private readonly userDataRepository: UserDataRepository
+    private readonly userDataRepository: UserDataRepository,
+    private readonly mailerAdpter: MailerAdapter,
+    private readonly mailerSupport: string,
   ){}
 
 
@@ -30,7 +32,13 @@ export class UserDataController {
     const [error, getTrainingRoutineDto] = GetTrainingRoutineDto.create(req.body);
     if (error) return res.status(400).json({ error, status: 400 });
 
-    new GetTrainingRoutineUseCase(this.pdfsAdapter, this.usersRepository, this.userDataRepository)
+    new GetTrainingRoutineUseCase(
+      this.pdfsAdapter,
+      this.usersRepository,
+      this.userDataRepository,
+      this.mailerAdpter,
+      this.mailerSupport,
+    )
       .trainingRoutine(getTrainingRoutineDto!)
       .then(data => {
         res.writeHead(200, {
