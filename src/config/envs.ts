@@ -13,4 +13,5 @@ export const envs = {
   MAILER_EMAIL: get('MAILER_EMAIL').required().asString(),
   MAILER_PASS: get('MAILER_PASS').required().asString(),
   CHAT_OPEN_AI: get('CHAT_OPEN_AI').required().asBool(),
+  STRIPE_SECRET: get('STRIPE_SECRET').required().asString(),
 }
