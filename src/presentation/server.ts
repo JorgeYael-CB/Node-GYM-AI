@@ -21,7 +21,7 @@ export class Server {
 
     this.app.use(cors());
 
-    this.app.use( this.routes );
+    this.app.use( '/api', this.routes );
   }
 
   start = () => {

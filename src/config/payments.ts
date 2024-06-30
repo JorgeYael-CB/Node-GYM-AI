@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { PaymentSessionDto } from "../domain/dtos/payments";
 
 
 export class PaymentAdapter {
@@ -12,7 +13,22 @@ export class PaymentAdapter {
   }
 
 
-  createPaymentSession = async () => {
+  createPaymentSession = async ( paymentSessionDto: PaymentSessionDto ) => {
+    const { currency, products } = paymentSessionDto;
+    const line_items = products.map( product => (
+      {
+        price_data: {
+          currency,
+          product_data: {
+            name: product.name,
+          },
+          unit_amount: Math.round( product.amount * 100 ), // 100 pesos mxn
+        },
+        quantity: product.quantity,
+      }
+    ));
+
+
     const session = await this.stripe.checkout.sessions.create({
 
       // Colocar aqui el ID de la orden
@@ -21,18 +37,7 @@ export class PaymentAdapter {
       },
 
       // Items que se van a comprar
-      line_items: [
-        {
-          price_data: {
-            currency: 'mxn',
-            product_data: {
-              name: `Sport-AI-Month`
-            },
-            unit_amount: 10000, // 100 pesos mxn
-          },
-          quantity: 1,
-        }
-      ],
+      line_items,
       mode: 'payment',
       success_url: 'https://www.youtube.com',
       cancel_url: 'https://www.google.com',
