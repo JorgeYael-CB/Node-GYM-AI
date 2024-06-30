@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { PaymentSessionDto } from "../../domain/dtos/payments";
+import { PaymentSessionDto, PaymentSubscriptionDto } from "../../domain/dtos/payments";
 import { PaymentAdapter } from "../../config";
 import { CustomError } from "../../domain/errors";
 
@@ -32,9 +32,19 @@ export class PaymentController {
   }
 
 
+  paymentSubscription = ( req:Request, res:Response ) => {
+    const [error, paymentSubscriptionDto] = PaymentSubscriptionDto.create( req.body );
+    if( error ) return res.status(400).json({error, status: 400});
+
+    this.paymentAdapter.createSubscriptionSession( paymentSubscriptionDto! )
+      .then( data => res.status(200).json(data) )
+      .catch( err => this.handleError(err, res) );
+  }
+
+
   paymentWebhook = ( req:Request, res:Response ) => {
     this.paymentAdapter.webhook(req, res)
-      .then( data => console.log(`El usuario con el id: ${data.userId} ha comprado`))
+      .then( data => console.log(`El usuario con el id: ${data.userId} ha comprado el producto: '${data.orderId}'`))
       .catch( err => this.handleError(err, res) );
   }
 

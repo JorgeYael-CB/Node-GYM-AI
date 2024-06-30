@@ -16,6 +16,7 @@ export class PaymentRoutes{
     const controller = new PaymentController( paymentService );
 
     routes.post('/create-session-payment', authMiddleware.validateJwt, controller.paymentSession);
+    routes.post('/create-session-subscription', authMiddleware.validateJwt, controller.paymentSubscription);
     routes.post('/payment-webhook', controller.paymentWebhook);
 
 
