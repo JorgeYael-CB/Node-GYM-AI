@@ -16,6 +16,7 @@ export class Server {
 
 
   private config = () => {
+    this.app.use(/\/.*payment-webhook.*/, express.raw({ type: 'application/json' }));
     this.app.use( express.json() );
     this.app.use( express.urlencoded( {extended: true} ) );
 

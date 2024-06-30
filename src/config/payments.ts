@@ -1,5 +1,7 @@
 import Stripe from "stripe";
 import { PaymentSessionDto } from "../domain/dtos/payments";
+import { Request, Response } from "express";
+import { CustomError } from "../domain/errors";
 
 
 export class PaymentAdapter {
@@ -8,6 +10,7 @@ export class PaymentAdapter {
 
   constructor(
     sk_key: string,
+    private readonly sk_webhook: string,
   ){
     this.stripe = new Stripe( sk_key );
   }
@@ -48,7 +51,35 @@ export class PaymentAdapter {
   }
 
 
-  createSubscriptionSession(){
+  async createSubscriptionSession(){
+  }
+
+
+  async webhook( request:Request, response:Response ){
+    const sig = request.headers['stripe-signature'];
+
+    let event;
+    if( !sig ) throw CustomError.BadRequestException(`Asignature failed`);
+
+    try {
+      event = this.stripe.webhooks.constructEvent(request.body, sig, this.sk_webhook);
+    } catch (err) {
+      response.status(400).send(`Webhook Error: ${err}`);
+      return;
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        const paymentIntentSucceeded = event.data.object;
+        console.log('Alguien pago ', paymentIntentSucceeded);
+        break;
+      // ... handle other event types
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    response.send()
   }
 
 }
