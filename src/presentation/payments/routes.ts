@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { PaymentController } from "./controller";
 import { PaymentAdapter, envs } from "../../config";
+import { authMiddleware } from "../auth/routes";
 
 
 
@@ -14,7 +15,7 @@ export class PaymentRoutes{
     const routes = Router();
     const controller = new PaymentController( paymentService );
 
-    routes.post('/create-session-payment', controller.paymentSession);
+    routes.post('/create-session-payment', authMiddleware.validateJwt, controller.paymentSession);
     routes.post('/payment-webhook', controller.paymentWebhook);
 
 

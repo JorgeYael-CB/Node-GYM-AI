@@ -4,6 +4,12 @@ import { Request, Response } from "express";
 import { CustomError } from "../domain/errors";
 
 
+
+interface Webhook {
+  userId?: string;
+}
+
+
 export class PaymentAdapter {
 
   private readonly stripe: Stripe;
@@ -33,19 +39,16 @@ export class PaymentAdapter {
 
 
     const session = await this.stripe.checkout.sessions.create({
-
-      // Colocar aqui el ID de la orden
       payment_intent_data: {
-        metadata: {}
+        metadata: {
+          userId: paymentSessionDto.userId,
+        }
       },
-
-      // Items que se van a comprar
       line_items,
       mode: 'payment',
       success_url: 'https://www.youtube.com',
       cancel_url: 'https://www.google.com',
-    })
-
+    });
 
     return session;
   }
@@ -55,8 +58,11 @@ export class PaymentAdapter {
   }
 
 
-  async webhook( request:Request, response:Response ){
+  async webhook( request:Request, response:Response ):Promise<Webhook>{
     const sig = request.headers['stripe-signature'];
+    let metaData = {
+      userId: '',
+    };
 
     let event;
     if( !sig ) throw CustomError.BadRequestException(`Asignature failed`);
@@ -64,22 +70,22 @@ export class PaymentAdapter {
     try {
       event = this.stripe.webhooks.constructEvent(request.body, sig, this.sk_webhook);
     } catch (err) {
-      response.status(400).send(`Webhook Error: ${err}`);
-      return;
+      throw CustomError.InternalServerError(`Error webhook: ${err}`);
     }
 
-    // Handle the event
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntentSucceeded = event.data.object;
-        console.log('Alguien pago ', paymentIntentSucceeded);
+        metaData = {
+          userId: paymentIntentSucceeded.metadata.userId,
+        };
         break;
-      // ... handle other event types
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
 
     response.send()
+    return metaData;
   }
 
 }

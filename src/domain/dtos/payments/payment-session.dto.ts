@@ -1,3 +1,5 @@
+
+
 interface ProductInterface {
   name: string,
   amount: number,
@@ -12,15 +14,16 @@ export class PaymentSessionDto {
   constructor(
     public readonly currency: currency,
     public readonly products: ProductInterface[],
+    public readonly userId: string,
   ){}
 
 
   static create( body: {[key:string]: any} ):[string?, PaymentSessionDto?]{
-    const { currency, products } = body;
+    const { currency, products, userId } = body;
     let error: string = '';
 
-    if( !currency || !products ){
-      return ['currency and products is required'];
+    if( !currency || !products || !userId ){
+      return ['currency, email and products is required'];
     }
 
     if( !Array.isArray( products ) ){
@@ -42,7 +45,7 @@ export class PaymentSessionDto {
     }
 
 
-    return[undefined, new PaymentSessionDto(currency, products)];
+    return[undefined, new PaymentSessionDto(currency, products, userId)];
   }
 
 }
