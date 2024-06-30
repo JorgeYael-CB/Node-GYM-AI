@@ -2,7 +2,7 @@ import { Types, isValidObjectId } from "mongoose";
 import { BcryptAdapter, CompareDateAdapter } from "../../../config";
 import { userModel } from "../../../db/mongo";
 import { UsersDatasource } from "../../../domain/datasources";
-import { LoginUserDto, RegisterUserDto, GetUserDto, ResetPasswordDto, GetTrainingRoutineDto } from "../../../domain/dtos";
+import { LoginUserDto, RegisterUserDto, GetUserDto, ResetPasswordDto } from "../../../domain/dtos";
 import { UserEntity } from "../../../domain/entities";
 import { CustomError } from "../../../domain/errors";
 import { UserMapper } from "../../mappers";
@@ -16,6 +16,30 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
     private readonly bcryptAdapter: BcryptAdapter,
     private readonly compareDateAdapter: CompareDateAdapter,
   ){}
+
+
+  private async chechStatusRole( userId: any ){
+    const user = await this.getUserBy(undefined, userId);
+    if( !user.roles.includes('USER_VIP') ) return;
+
+    // validamos su fecha
+    const compareDateRole = this.compareDateAdapter.compareDate(user.startDatePayment, 30);
+
+    if( typeof compareDateRole === 'boolean' ){
+      user.roles = user.roles.filter( role => role !== 'USER_VIP' );
+      await user.save();
+    }
+  }
+
+
+  async updatedPayment(userId: any): Promise<UserEntity> {
+    const user = await this.getUserBy(undefined, userId);
+    user.roles.push('USER_VIP'); // le agregamos el nuevo role de usuario
+    user.startDatePayment = new Date();
+
+    await user.save();
+    return UserMapper.getUserFromObj( user );
+  }
 
 
   private async getUserBy( email?:string, id?:any ){
@@ -42,14 +66,15 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
 
   async checkMessageDate( userId: any ): Promise<UserEntity> {
     const user = await this.getUserBy(undefined, userId);
+    await this.chechStatusRole( user._id );
     this.userAcces(user, 'USER_VIP');
 
     //TODO: hacemos las validaciones de los mensajes
     if( user.lastDateMessages.length >= user.limitMessage ){
-      let validMessages = user.lastDateMessages.filter(msg => typeof this.compareDateAdapter.oneDay(msg) === 'string');
+      let validMessages = user.lastDateMessages.filter(msg => typeof this.compareDateAdapter.compareDate(msg) === 'string');
 
       if( validMessages.length >= user.lastDateMessages.length ){
-        const lastDateString = this.compareDateAdapter.oneDay( validMessages[0] );
+        const lastDateString = this.compareDateAdapter.compareDate( validMessages[0] );
         throw CustomError.Unauthorized(`You currently have no messages available, please try again at: ${lastDateString}`);
       };
 
@@ -64,13 +89,14 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
 
   async checkRoutineDate(userId: any): Promise<UserEntity> {
     const user = await this.getUserBy(undefined, userId);
+    await this.chechStatusRole( user._id );
     this.userAcces(user, 'USER_VIP');
 
     if( user.routineDate.length >= user.limitRoutineForDay ){
-      let validMessages = user.routineDate.filter(routine => typeof this.compareDateAdapter.oneDay(routine) === 'string');
+      let validMessages = user.routineDate.filter(routine => typeof this.compareDateAdapter.compareDate(routine) === 'string');
 
       if( validMessages.length >= user.routineDate.length ){
-        const lastDateString = this.compareDateAdapter.oneDay( validMessages[0] );
+        const lastDateString = this.compareDateAdapter.compareDate( validMessages[0] );
         throw CustomError.Unauthorized(`You currently have no routine available, please try again at: ${lastDateString}`);
       };
 
@@ -90,6 +116,7 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
     if( !comaprePassword ) throw CustomError.Unauthorized(`The password or email is incorrect!`);
 
     this.userAcces(user);
+    await this.chechStatusRole( user._id );
 
     return UserMapper.getUserFromObj(user);
   }
@@ -122,6 +149,7 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
 
   async getUser(getUserDto: GetUserDto): Promise<UserEntity> {
     const user = await this.getUserBy(getUserDto.email, getUserDto.id);
+    await this.chechStatusRole( user._id );
 
     return UserMapper.getUserFromObj(await user.populate('data', {
       _id: 1,

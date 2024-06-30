@@ -85,6 +85,10 @@ const UserSchema = new Schema({
     default: []
   },
 
+  startDatePayment: {
+    type: Date,
+  },
+
 });
 
 

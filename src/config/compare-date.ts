@@ -5,12 +5,12 @@ export class CompareDateAdapter {
   constructor(){};
 
 
-  oneDay(dateCompare: any): string | boolean{
+  compareDate(dateCompare: any, days:number = 1): string | boolean {
     const currentDate:any = new Date();
     const differenceInMilliseconds = currentDate - dateCompare;
 
     const differenceInDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
-    const hasOneDayPassed = differenceInDays >= 1;
+    const hasOneDayPassed = differenceInDays >= days;
 
     if (hasOneDayPassed) {
       return true

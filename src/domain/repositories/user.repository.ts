@@ -1,4 +1,4 @@
-import { GetTrainingRoutineDto, LoginUserDto, ResetPasswordDto, RegisterUserDto, GetUserDto } from "../dtos";
+import { LoginUserDto, ResetPasswordDto, RegisterUserDto, GetUserDto } from "../dtos";
 import { UserEntity } from "../entities";
 
 
@@ -11,4 +11,5 @@ export abstract class UsersRepository {
   abstract getAllUsers(): Promise< UserEntity[] >;
   abstract checkMessageDate(userId:any):Promise<UserEntity>;
   abstract checkRoutineDate( userId:any ):Promise<UserEntity>;
+  abstract updatedPayment( userId: any ):Promise<UserEntity>;
 };

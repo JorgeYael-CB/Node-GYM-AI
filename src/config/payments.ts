@@ -9,16 +9,16 @@ import { PaymentSubscriptionDto } from '../domain/dtos/payments';
 interface Webhook {
   userId?: string;
   orderId?: string;
-  productId?: string;
+  productId?: any;
+  subscription?: boolean;
 }
 
 
 export class PaymentAdapter {
 
   private readonly stripe: Stripe;
-
-  private readonly success_url = 'https://www.youtube.com'
-  private readonly cancel_url = 'https://www.google.com'
+  private readonly success_url = 'https://www.youtube.com';
+  private readonly cancel_url = 'https://www.google.com';
 
 
   constructor(
@@ -90,7 +90,7 @@ export class PaymentAdapter {
 
   async webhook( request:Request, response:Response ):Promise<Webhook>{
     const sig = request.headers['stripe-signature'];
-    let metaData = {};
+    let metaData:Webhook = {};
 
     let event;
     if( !sig ) throw CustomError.BadRequestException(`Asignature failed`);
@@ -114,20 +114,14 @@ export class PaymentAdapter {
         metaData = {
           userId: invoicePaymentSucceeded.metadata!.userId,
           productId: invoicePaymentSucceeded.metadata!.orderId,
-        };
-        break;
-      case 'customer.subscription.deleted': // cuando el usuario cancela una subscripcion
-        const invoicePaymentCanceled = event.data.object;
-        metaData = {
-          userId: invoicePaymentCanceled.metadata!.userId,
-          productId: invoicePaymentCanceled.metadata!.orderId,
+          subscription: true,
         };
         break;
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
 
-    response.send()
+    response.send();
     return metaData;
   }
 

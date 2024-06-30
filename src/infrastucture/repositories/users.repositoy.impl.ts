@@ -1,5 +1,5 @@
 import { UsersDatasource } from "../../domain/datasources";
-import { LoginUserDto, RegisterUserDto, GetUserDto, ResetPasswordDto, GetTrainingRoutineDto } from "../../domain/dtos";
+import { LoginUserDto, RegisterUserDto, GetUserDto, ResetPasswordDto } from "../../domain/dtos";
 import { UserEntity } from "../../domain/entities";
 import { UsersRepository } from "../../domain/repositories";
 
@@ -9,6 +9,11 @@ export class UsersRepositoryImpl implements UsersRepository {
   constructor(
     private readonly usersDatasource: UsersDatasource,
   ){}
+
+
+  updatedPayment(userId: any): Promise<UserEntity> {
+    return this.usersDatasource.updatedPayment( userId );
+  }
 
 
   checkRoutineDate(userId: any): Promise<UserEntity> {
