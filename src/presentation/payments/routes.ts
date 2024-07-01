@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { PaymentController } from "./controller";
 import { PaymentAdapter, envs } from "../../config";
-import { authMiddleware } from "../auth/routes";
+import { authMiddleware, usersRepositoryImpl } from "../auth/routes";
 
 
 
@@ -13,7 +13,7 @@ export class PaymentRoutes{
 
   static get Router():Router{
     const routes = Router();
-    const controller = new PaymentController( paymentService );
+    const controller = new PaymentController( paymentService, usersRepositoryImpl );
 
     routes.post('/create-session-payment', authMiddleware.validateJwt, controller.paymentSession);
     routes.post('/create-session-subscription', authMiddleware.validateJwt, controller.paymentSubscription);

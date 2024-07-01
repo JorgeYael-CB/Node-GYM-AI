@@ -78,7 +78,6 @@ export class PaymentAdapter {
           userId: paymentSubscriptionDto.userId,
         },
       },
-      customer_email: paymentSubscriptionDto.email,
       customer: customer.id,
       line_items: [
         {
@@ -92,26 +91,6 @@ export class PaymentAdapter {
     });
 
     return session;
-  }
-
-
-  async createInvoice(customerId: any, amount: number, currency: string) {
-    const createInvoice = await this.stripe.invoiceItems.create({
-      customer: customerId,
-      amount,
-      currency,
-    });
-
-    const invoice = await this.stripe.invoices.create({
-      customer: customerId,
-      auto_advance: true,
-      collection_method: 'send_invoice',
-      days_until_due: 30,
-    });
-
-    console.log('Se envio la factura de pago');
-
-    return invoice;
   }
 
 
@@ -130,29 +109,24 @@ export class PaymentAdapter {
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntentSucceeded = event.data.object;
-        const userIdPayment = paymentIntentSucceeded.metadata?.userId;
+        const userIdPayment = paymentIntentSucceeded.metadata.userId;
 
         if( userIdPayment ){
-          if( paymentIntentSucceeded.customer ){
-            await this.createInvoice(paymentIntentSucceeded.customer, paymentIntentSucceeded.amount_received, paymentIntentSucceeded.currency);
-          }
           callbacks.sessionPaymentSucces({data: paymentIntentSucceeded, userId: userIdPayment});
         }
         break;
-      case 'invoice.payment_succeeded': //? cuando el usuario hace una suscripcion
+      case 'customer.subscription.created': //? cuando el usuario hace una suscripcion
         const invoicePaymentSucceeded = event.data.object;
         const userId = invoicePaymentSucceeded.metadata?.userId;
 
         if( userId ){
-          if( invoicePaymentSucceeded.customer ){
-            await this.createInvoice(invoicePaymentSucceeded.customer, invoicePaymentSucceeded.amount_paid, invoicePaymentSucceeded.currency);
-          }
           callbacks.subscriptionPaymentSucces({data: invoicePaymentSucceeded, userId});
         }
-
         break;
       case 'customer.subscription.deleted': //? cuando el usuario cancela la suscripcion
         const invoicePaymentDeled = event.data.object;
+
+        console.log('Alguien cancelo una suscripcion')
         break;
       default:
         break;

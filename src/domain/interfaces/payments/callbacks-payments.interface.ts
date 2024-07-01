@@ -4,5 +4,5 @@ import { SessionPaymentSuccesType, SubscriptionPaymentCancelType, SubscriptionPa
 export interface CallbacksHookInterface {
   sessionPaymentSucces: SessionPaymentSuccesType;
   subscriptionPaymentSucces: SubscriptionPaymentSuccesType;
-  subscriptionPaymentCancel: SubscriptionPaymentCancelType;
+  subscriptionPaymentCancel?: SubscriptionPaymentCancelType;
 }
