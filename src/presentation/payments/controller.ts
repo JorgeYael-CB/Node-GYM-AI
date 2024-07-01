@@ -43,9 +43,9 @@ export class PaymentController {
 
 
   paymentWebhook = ( req:Request, res:Response ) => {
-    this.paymentAdapter.webhook(req, res)
-      .then( data => {})
-      .catch( err => this.handleError(err, res) );
+    // this.paymentAdapter.webhook(req, res)
+    //   .then( data => {})
+    //   .catch( err => this.handleError(err, res) );
   }
 
 }

@@ -1,3 +1,4 @@
+import { ValidateData } from "../../../config";
 
 
 export class PaymentSubscriptionDto {
@@ -5,22 +6,24 @@ export class PaymentSubscriptionDto {
   constructor(
     public readonly productId: string,
     public readonly userId: string,
+    public readonly email: string,
+    public readonly name: string,
   ){};
 
 
   static create( body: {[key:string]: any} ):[string?, PaymentSubscriptionDto?]{
-    const { productId, userId } = body;
+    const { productId, userId, email, name } = body;
 
-    if( !productId ){
-      return ['Missing productId']
+    if( !productId || !userId ){
+      return ['Missing productId and id']
     }
 
-    if( !userId ){
-      return ['Please contact support'];
-    }
+    if( !name ) return ['Missing name'];
 
+    const [emailError, emailMapper] = ValidateData.email( email );
+    if( emailError )[emailError];
 
-    return [ undefined, new PaymentSubscriptionDto(productId, userId) ];
+    return [ undefined, new PaymentSubscriptionDto(productId, userId, emailMapper!, name) ];
   }
 
 }

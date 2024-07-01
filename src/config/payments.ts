@@ -3,15 +3,8 @@ import { PaymentSessionDto } from "../domain/dtos/payments";
 import { Request, Response } from "express";
 import { CustomError } from "../domain/errors";
 import { PaymentSubscriptionDto } from '../domain/dtos/payments';
+import { CallbacksHookInterface } from "../domain/interfaces";
 
-
-
-interface Webhook {
-  userId?: string;
-  orderId?: string;
-  productId?: any;
-  subscription?: boolean;
-}
 
 
 export class PaymentAdapter {
@@ -29,10 +22,21 @@ export class PaymentAdapter {
   }
 
 
+  async createCustomer(email: string, name: string) {
+    const customer = await this.stripe.customers.create({
+      email,
+      name,
+    });
+    return customer;
+  }
+
+
   createPaymentSession = async ( paymentSessionDto: PaymentSessionDto ) => {
-    const { currency, products } = paymentSessionDto;
-    const line_items = products.map( product => (
-      {
+    const { currency, products, email, name } = paymentSessionDto;
+    const customer = await this.createCustomer(email, name);
+
+    const line_items = products.map( product => {
+      return {
         price_data: {
           currency,
           product_data: {
@@ -43,16 +47,16 @@ export class PaymentAdapter {
         },
         quantity: product.quantity,
       }
-    ));
+    });
 
     const session = await this.stripe.checkout.sessions.create({
+      line_items,
+      customer: customer.id,
       payment_intent_data: {
         metadata: {
           userId: paymentSessionDto.userId,
-          orderId: paymentSessionDto.orderId,
-        }
+        },
       },
-      line_items,
       mode: 'payment',
       allow_promotion_codes: true,
       ui_mode: 'hosted',
@@ -65,14 +69,17 @@ export class PaymentAdapter {
 
 
   async createSubscriptionSession( paymentSubscriptionDto: PaymentSubscriptionDto ){
+    const customer = await this.createCustomer( paymentSubscriptionDto.email, paymentSubscriptionDto.name );
+
     const session = await this.stripe.checkout.sessions.create({
       subscription_data: {
         description: 'SPORT AI',
         metadata: {
           userId: paymentSubscriptionDto.userId,
-          orderId: paymentSubscriptionDto.productId,
         },
       },
+      customer_email: paymentSubscriptionDto.email,
+      customer: customer.id,
       line_items: [
         {
           price: paymentSubscriptionDto.productId,
@@ -88,9 +95,28 @@ export class PaymentAdapter {
   }
 
 
-  async webhook( request:Request, response:Response ):Promise<Webhook>{
+  async createInvoice(customerId: any, amount: number, currency: string) {
+    const createInvoice = await this.stripe.invoiceItems.create({
+      customer: customerId,
+      amount,
+      currency,
+    });
+
+    const invoice = await this.stripe.invoices.create({
+      customer: customerId,
+      auto_advance: true,
+      collection_method: 'send_invoice',
+      days_until_due: 30,
+    });
+
+    console.log('Se envio la factura de pago');
+
+    return invoice;
+  }
+
+
+  async webhook( request:Request, response:Response, callbacks: CallbacksHookInterface ){
     const sig = request.headers['stripe-signature'];
-    let metaData:Webhook = {};
 
     let event;
     if( !sig ) throw CustomError.BadRequestException(`Asignature failed`);
@@ -104,33 +130,35 @@ export class PaymentAdapter {
     switch (event.type) {
       case 'payment_intent.succeeded':
         const paymentIntentSucceeded = event.data.object;
-        metaData = {
-          userId: paymentIntentSucceeded.metadata.userId,
-          orderId: paymentIntentSucceeded.metadata.orderId,
-        };
+        const userIdPayment = paymentIntentSucceeded.metadata?.userId;
+
+        if( userIdPayment ){
+          if( paymentIntentSucceeded.customer ){
+            await this.createInvoice(paymentIntentSucceeded.customer, paymentIntentSucceeded.amount_received, paymentIntentSucceeded.currency);
+          }
+          callbacks.sessionPaymentSucces({data: paymentIntentSucceeded, userId: userIdPayment});
+        }
         break;
       case 'invoice.payment_succeeded': //? cuando el usuario hace una suscripcion
         const invoicePaymentSucceeded = event.data.object;
-        metaData = {
-          userId: invoicePaymentSucceeded.metadata!.userId,
-          productId: invoicePaymentSucceeded.metadata!.orderId,
-          subscription: true,
-        };
+        const userId = invoicePaymentSucceeded.metadata?.userId;
+
+        if( userId ){
+          if( invoicePaymentSucceeded.customer ){
+            await this.createInvoice(invoicePaymentSucceeded.customer, invoicePaymentSucceeded.amount_paid, invoicePaymentSucceeded.currency);
+          }
+          callbacks.subscriptionPaymentSucces({data: invoicePaymentSucceeded, userId});
+        }
+
         break;
       case 'customer.subscription.deleted': //? cuando el usuario cancela la suscripcion
         const invoicePaymentDeled = event.data.object;
-        metaData = {
-          userId: invoicePaymentDeled.metadata!.userId,
-          productId: invoicePaymentDeled.metadata!.orderId,
-          subscription: true,
-        };
         break;
       default:
         break;
     }
 
     response.send();
-    return metaData;
   }
 
 }

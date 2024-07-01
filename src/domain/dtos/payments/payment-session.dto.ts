@@ -1,11 +1,6 @@
+import { ValidateData } from "../../../config";
+import { PaymentsProductInterface } from "../../interfaces";
 
-
-interface ProductInterface {
-  name: string,
-  amount: number,
-  quantity: number,
-  images?: string[],
-}
 
 type currency = 'mxn' | 'usd';
 
@@ -14,31 +9,36 @@ export class PaymentSessionDto {
 
   constructor(
     public readonly currency: currency,
-    public readonly products: ProductInterface[],
+    public readonly products: PaymentsProductInterface[],
     public readonly userId: string,
-    public readonly orderId: string,
+    public readonly name: string,
+    public readonly email: string,
   ){}
 
 
   static create( body: {[key:string]: any} ):[string?, PaymentSessionDto?]{
-    const { currency, products, userId, orderId } = body;
+    const { currency, products, userId, orderId, name, email } = body;
     let error: string = '';
 
-    if( !currency || !products || !userId || !orderId ){
-      return ['currency, orderId and products is required'];
+    if( !currency || !products || !userId ){
+      return ['currency and products is required'];
     }
 
-    if( !Array.isArray( products ) ){
+    if( !name || !email ){
+      return ['name and email is required'];
+    }
+
+    const [emailError, emailMapper] = ValidateData.email( email );
+    if( emailError ) return [emailError];
+
+
+    if( !Array.isArray( products ) || products.length <= 0 ){
       return ['Products is not valid!'];
     }
 
-    if( products.length <= 0 ){
-      return ['You need at least 1 item in the product array.'];
-    }
-
     products.forEach( product => {
-      if( !product.name || !product.amount || !product.quantity ){
-        error = 'The product list is not valid, product required name, amount and quantity';
+      if( !product.name || !product.amount || !product.quantity || !product.productId ){
+        error = 'The product list is not valid, productId, product required name, amount and quantity';
       }
 
       if( product.images && !Array.isArray(product.images) ){
@@ -51,7 +51,7 @@ export class PaymentSessionDto {
     }
 
 
-    return[undefined, new PaymentSessionDto(currency, products, userId, orderId)];
+    return[undefined, new PaymentSessionDto(currency, products, userId, name, emailMapper!)];
   }
 
 }
