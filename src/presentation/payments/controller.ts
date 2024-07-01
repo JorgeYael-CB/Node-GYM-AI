@@ -44,7 +44,7 @@ export class PaymentController {
 
   paymentWebhook = ( req:Request, res:Response ) => {
     this.paymentAdapter.webhook(req, res)
-      .then( data => console.log(`El usuario con el id: ${data.userId} ha comprado el producto: '${data.orderId}'`))
+      .then( data => {})
       .catch( err => this.handleError(err, res) );
   }
 

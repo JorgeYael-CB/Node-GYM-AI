@@ -109,7 +109,7 @@ export class PaymentAdapter {
           orderId: paymentIntentSucceeded.metadata.orderId,
         };
         break;
-      case 'customer.subscription.created': // cuando el usuario hace una suscripcion
+      case 'invoice.payment_succeeded': //? cuando el usuario hace una suscripcion
         const invoicePaymentSucceeded = event.data.object;
         metaData = {
           userId: invoicePaymentSucceeded.metadata!.userId,
@@ -117,8 +117,16 @@ export class PaymentAdapter {
           subscription: true,
         };
         break;
+      case 'customer.subscription.deleted': //? cuando el usuario cancela la suscripcion
+        const invoicePaymentDeled = event.data.object;
+        metaData = {
+          userId: invoicePaymentDeled.metadata!.userId,
+          productId: invoicePaymentDeled.metadata!.orderId,
+          subscription: true,
+        };
+        break;
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        break;
     }
 
     response.send();
