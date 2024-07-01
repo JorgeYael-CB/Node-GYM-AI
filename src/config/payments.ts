@@ -79,6 +79,7 @@ export class PaymentAdapter {
         },
       },
       customer: customer.id,
+      currency: 'mxn',
       line_items: [
         {
           price: paymentSubscriptionDto.productId,
@@ -124,9 +125,7 @@ export class PaymentAdapter {
         }
         break;
       case 'customer.subscription.deleted': //? cuando el usuario cancela la suscripcion
-        const invoicePaymentDeled = event.data.object;
-
-        console.log('Alguien cancelo una suscripcion')
+        const invoicePaymentDeleted = event.data.object;
         break;
       default:
         break;

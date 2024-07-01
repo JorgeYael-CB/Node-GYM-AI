@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { PaymentSessionDto, PaymentSubscriptionDto } from "../../domain/dtos/payments";
-import { PaymentAdapter } from "../../config";
+import { MailerAdapter, PaymentAdapter } from "../../config";
 import { CustomError } from "../../domain/errors";
 import { UpdatedSubscriptionUserUseCase, UserPaymentUseCase } from '../../domain/use-cases/payments';
 import { UsersRepository } from "../../domain/repositories";
@@ -13,6 +13,7 @@ export class PaymentController {
   constructor(
     private readonly paymentAdapter: PaymentAdapter,
     private readonly usersRepository: UsersRepository,
+    private readonly mailerAdapter:MailerAdapter,
   ){}
 
 
@@ -47,8 +48,8 @@ export class PaymentController {
 
 
   paymentWebhook = ( req:Request, res:Response ) => {
-    const updatedSubscriptionUserUseCase = new UpdatedSubscriptionUserUseCase(this.usersRepository);
-    const paymentUserUseCase = new UserPaymentUseCase(this.usersRepository);
+    const updatedSubscriptionUserUseCase = new UpdatedSubscriptionUserUseCase(this.usersRepository, this.mailerAdapter);
+    const paymentUserUseCase = new UserPaymentUseCase(this.usersRepository, this.mailerAdapter);
 
     const callbacks:CallbacksHookInterface = {
       subscriptionPaymentSucces: updatedSubscriptionUserUseCase.updated,

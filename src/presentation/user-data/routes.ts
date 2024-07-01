@@ -13,7 +13,7 @@ const pdfsAdaper = new PdfsAdapter(gptServiceAdapter);
 const userDataDatasource = new UserDataDatasourceMongoImpl();
 const userDataRepository = new UserDataRepositoryImpl(userDataDatasource);
 
-const mailerService = new MailerAdapter({
+export const mailerService = new MailerAdapter({
   mailerPass: envs.MAILER_PASS,
   mailerUser: envs.MAILER_EMAIL,
 });
