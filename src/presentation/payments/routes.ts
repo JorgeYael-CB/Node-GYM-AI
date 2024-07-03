@@ -19,6 +19,7 @@ export class PaymentRoutes{
     routes.post('/create-session-payment', authMiddleware.validateJwt, controller.paymentSession);
     routes.post('/create-session-subscription', authMiddleware.validateJwt, controller.paymentSubscription);
     routes.post('/payment-webhook', controller.paymentWebhook);
+    routes.get('/get-services', controller.getServices);
 
 
     return routes;

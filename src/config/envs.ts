@@ -15,5 +15,4 @@ export const envs = {
   CHAT_OPEN_AI: get('CHAT_OPEN_AI').required().asBool(),
   STRIPE_SECRET: get('STRIPE_SECRET').required().asString(),
   STRIPE_SECRET_WEBHOOK: get('STRIPE_SECRET_WEBHOOK').required().asString(),
-  ID_MONTH_SPORT_AI: get('ID_MONTH_SPORT_AI').required().asString(),
 }

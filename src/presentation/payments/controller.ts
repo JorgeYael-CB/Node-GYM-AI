@@ -60,4 +60,11 @@ export class PaymentController {
       .catch( err => this.handleError(err, res) );
   }
 
+
+  getServices = ( req:Request, res:Response ) => {
+    this.paymentAdapter.getServices()
+      .then( data => res.status(200).json(data) )
+      .catch( err => this.handleError( err, res ) );
+  }
+
 }

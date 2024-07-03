@@ -79,7 +79,6 @@ export class PaymentAdapter {
         },
       },
       customer: customer.id,
-      currency: 'mxn',
       line_items: [
         {
           price: paymentSubscriptionDto.productId,
@@ -92,6 +91,15 @@ export class PaymentAdapter {
     });
 
     return session;
+  }
+
+
+  async getServices(){
+    const services = (await this.stripe.prices.list()).data
+
+    return {
+      services,
+    };
   }
 
 
