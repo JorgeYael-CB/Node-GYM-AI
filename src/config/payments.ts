@@ -10,7 +10,7 @@ import { CallbacksHookInterface } from "../domain/interfaces";
 export class PaymentAdapter {
 
   private readonly stripe: Stripe;
-  private readonly success_url = 'https://www.youtube.com';
+  private readonly success_url = 'http://localhost:5173/dashboard';
   private readonly cancel_url = 'https://www.google.com';
 
 
@@ -95,7 +95,7 @@ export class PaymentAdapter {
 
 
   async getServices(){
-    const services = (await this.stripe.prices.list()).data
+    const services = (await this.stripe.subscriptions.list()).data
 
     return {
       services,
@@ -126,7 +126,7 @@ export class PaymentAdapter {
         break;
       case 'customer.subscription.created': //? cuando el usuario hace una suscripcion
         const invoicePaymentSucceeded = event.data.object;
-        const userId = invoicePaymentSucceeded.metadata?.userId;
+        const userId = invoicePaymentSucceeded.metadata.userId;
 
         if( userId ){
           callbacks.subscriptionPaymentSucces({data: invoicePaymentSucceeded, userId});

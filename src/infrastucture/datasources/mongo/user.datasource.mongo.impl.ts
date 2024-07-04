@@ -35,6 +35,7 @@ export class UsersDatasourceMongoImpl implements UsersDatasource {
   async updatedPayment(userId: any): Promise<UserEntity> {
     const user = await this.getUserBy(undefined, userId);
     user.roles.push('USER_VIP'); // le agregamos el nuevo role de usuario
+    user.totalAmountPaid += 399;
     user.startDatePayment = new Date();
 
     await user.save();

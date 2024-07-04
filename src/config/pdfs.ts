@@ -112,7 +112,10 @@ export class PdfsAdapter {
         proporcionados, llena la tabla que te dan con los 
         mejores datos para el usuario, es necesario que los completes con informacion importante y 
         sobre todo, que sean coherentes para su rutina del usuario, tambien agrega ejercicios, series, todo lo que sea, solo adapta una rutina para el usuario.
-        Trabajas para SPORT AI, si es necesario agrega mas columnas o remueve columnas para mejores rutinas, modifica la plantilla como sea necesario.`,
+        Trabajas para SPORT AI, si es necesario agrega mas columnas o remueve columnas para mejores rutinas, incluso puede 
+        modificarla para este enfocada en el deporte que practica el usuario, la que te di solo es un ejemplo de GYM o calistenia pero tu adapta la tabla y la rutina 
+        para el usuario, si te pide de yoga o lo que sea adaptala , solo debes generar una rutina para el deporte que practica 
+        el usuario, mejorala tanto como sea necesario, puedes modificarla para mejor experiencia de usuario y con base a su deporte y sus datos.`,
       user: ` Hola, genera una rutina deportiva, solo usa la plantilla que te dan y no agregues mas texto, solo el HTML con la plantilla que te dan, 
           esta es una tabla de ejemplo de como debes hacer las tablas, hoy es el dia: ${day} y el musculo que le toca es: ${muscle},
           este es el ejemplo de como debes hacerla, ira en formato HTML, solo remplaza las tablas con el ejercicio, si es necesario agrega mas o quita mas tabla.
@@ -124,7 +127,6 @@ export class PdfsAdapter {
           , puedes agregar metodos nuevos, diferentes series y agregar las repeticiones que requiera la rutina.`
     }
   }
-
 
   async trainingPdf({data: {
     aim,

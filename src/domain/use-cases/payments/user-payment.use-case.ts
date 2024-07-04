@@ -15,8 +15,6 @@ export class UserPaymentUseCase {
 
   pay:SessionPaymentSuccesType = async({data, userId}) => {
     const user = await this.usersRepository.getUser( new GetUserDto(userId) );
-
-    console.log(`El usuario: ${user.name} ha comprado por la cantidad de: ${data.amount}`);
   }
 
 }

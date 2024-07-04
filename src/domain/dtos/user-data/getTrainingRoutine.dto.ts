@@ -33,7 +33,12 @@ export class GetTrainingRoutineDto {
       if( !Object.keys(body).includes(element) ){
         return error = `Element ${element} is required`;
       }
+
+      if( typeof body[element] === 'string' && body[element].trim().length <= 0 ){
+        return error = `${element} is not valid`;
+      }
     });
+
 
     if( body.sexo !== 'M' && body.sexo !== 'F' ){
       error = 'sexo is not valid!';

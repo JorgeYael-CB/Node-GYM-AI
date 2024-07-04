@@ -14,8 +14,6 @@ export class UpdatedSubscriptionUserUseCase {
 
   updated:SubscriptionPaymentSuccesType = async( {data, userId} ) => {
     const user = await this.usersRepository.updatedPayment( userId );
-
-    console.log(`El usuario: ${user.name} ha comprado una suscripcion`);
   }
 
 
